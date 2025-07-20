@@ -24,10 +24,12 @@ jobs:
 
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        # Updated to v4 for the latest features and security
+        uses: actions/checkout@v4
 
       - name: Set up QEMU for cross‑arch Docker
-        uses: docker/setup-qemu-action@v2
+        # Updated to v3
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: ${{ matrix.platform }}
 
@@ -57,11 +59,13 @@ jobs:
               cp -r debian source/
 
               # Build .deb
+              # dpkg-buildpackage will create .deb files in the parent directory (/workspace)
               cd source
               dpkg-buildpackage -us -uc
             '
 
       - name: Upload .deb artifacts
+        # FIXED: Updated to v4 as v3 is deprecated and disabled
         uses: actions/upload-artifact@v4
         with:
           name: dynfilefs-${{ matrix.arch }}
@@ -72,4 +76,5 @@ jobs:
       - name: Clean up workspace
         if: always()
         run: |
+          # The paths match because the files are created in ${{ github.workspace }}
           rm -rf source dynfilefs_*.deb dynfilefs-dbgsym_*.deb
