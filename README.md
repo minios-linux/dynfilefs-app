@@ -1,5 +1,9 @@
 # DynFileFS Debian Packaging
 
+![Build Status](https://github.com/minios-linux/dynfilefs-app/actions/workflows/build-deb.yml/badge.svg)
+![License: GPL v2+](https://img.shields.io/badge/License-GPL%20v2%2B-blue.svg)
+![Issues](https://img.shields.io/github/issues/minios-linux/dynfilefs-app)
+
 This repository contains the packaging files for building a Debian package of [DynFileFS](https://github.com/Tomas-M/dynfilefs), a FUSE filesystem for dynamically-enlarged files.
 
 ## About DynFileFS
