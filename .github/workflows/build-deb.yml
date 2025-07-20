@@ -51,7 +51,6 @@ jobs:
           PACKAGE: ${{ steps.package_info.outputs.name }}
           VERSION: ${{ steps.package_info.outputs.version }}
         run: |
-          # FIXED: Pass variables to the container with the -e flag
           docker run --rm --privileged \
             -e PACKAGE -e VERSION \
             --platform ${{ matrix.platform }} \
@@ -87,7 +86,10 @@ jobs:
 
               echo "##[group]6. Run Lintian Check"
               cd ..
-              lintian --show-overrides --fail-on-error ${PACKAGE}_*.changes
+              # FIXED: The --fail-on-error flag is too new for debian:bookworm.
+              # This command prints all lintian output to the log, but fails the
+              # step only if an error line (E:) is found.
+              lintian --show-overrides ${PACKAGE}_*.changes | tee /dev/stderr | ! grep -q "^E:"
               echo "##[endgroup]"
             '
 
