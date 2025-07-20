@@ -39,8 +39,8 @@ build-package: add-debian
 
 lintian:
 	@echo "Running lintian..."
-	@lintian --show-overrides ../$(PACKAGE)_$(VERSION)-*.changes || true
+	@lintian --show-overrides build/$(PACKAGE)_*.changes
 
 clean:
 	@echo "Cleaning up..."
-	@rm -rf build *.deb *.dsc *.changes *.tar.gz
+	@rm -rf build
