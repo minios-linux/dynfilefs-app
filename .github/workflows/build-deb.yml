@@ -6,6 +6,8 @@ on:
     branches:
       - master
   pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -13,11 +15,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, i386]
+        include:
+          - arch: amd64
+            platform: linux/amd64
+          - arch: i386
+            platform: linux/386
 
-    # Use Debian Bookworm bootstrap images for each arch, with QEMU support
+    # Use a single multi‑arch Bookworm image and specify the platform via the matrix
     container:
-      image: multiarch/debian-debootstrap:bookworm-${{ matrix.arch }}
+      image: multiarch/debian-debootstrap:bookworm
+      platform: ${{ matrix.platform }}
       options: --privileged
 
     steps:
