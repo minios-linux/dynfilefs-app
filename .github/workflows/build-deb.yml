@@ -1,4 +1,3 @@
-# .github/workflows/build-deb.yml
 name: Build and Release Debian Package
 
 on:
@@ -47,7 +46,7 @@ jobs:
           echo "name=$PKG_NAME" >> $GITHUB_OUTPUT
           echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
           
-      - name: Build Debian Package
+      - name: Build and Lint Debian Package
         env:
           PACKAGE: ${{ steps.package_info.outputs.name }}
           VERSION: ${{ steps.package_info.outputs.version }}
@@ -63,9 +62,8 @@ jobs:
 
               echo "##[group]1. Install Dependencies"
               apt-get update
-              # Убрали lintian из списка пакетов
               DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                git dpkg-dev debhelper build-essential libfuse-dev
+                git dpkg-dev debhelper build-essential libfuse-dev lintian
               echo "##[endgroup]"
 
               echo "##[group]2. Clone Upstream Source"
@@ -85,13 +83,29 @@ jobs:
               cd build/${PACKAGE}-${VERSION}
               dpkg-buildpackage -us -uc
               echo "##[endgroup]"
+
+              echo "##[group]6. Run Lintian Check"
+              cd ..
+              LINTIAN_OUTPUT=$(lintian --show-overrides ${PACKAGE}_*.changes)
+              echo "${LINTIAN_OUTPUT}"
+              if echo "${LINTIAN_OUTPUT}" | grep -q "^E:"; then
+                echo "::error::Lintian reported errors. Build failed."
+                exit 1
+              fi
+              echo "##[endgroup]"
             '
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: deb-packages-${{ matrix.arch }}
-          path: build/
+          path: |
+            build/*.deb
+            build/*.dsc
+            build/*.orig.tar.gz
+            build/*.debian.tar.*
+            build/*.changes
+            build/*.buildinfo
 
   release:
     name: Create GitHub Release
