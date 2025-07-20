@@ -13,6 +13,7 @@ jobs:
   build:
     name: Build on ${{ matrix.arch }}
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         include:
@@ -21,46 +22,54 @@ jobs:
           - arch: i386
             platform: linux/386
 
-    # Use a single multi‑arch Bookworm image and specify the platform via the matrix
-    container:
-      image: multiarch/debian-debootstrap:bookworm
-      platform: ${{ matrix.platform }}
-      options: --privileged
-
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Install build tools & QEMU
-        run: |
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y \
-            git \
-            dpkg-dev \
-            debhelper \
-            build-essential \
-            libfuse-dev \
-            qemu-user-static
+      - name: Set up QEMU for cross‑arch Docker
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: ${{ matrix.platform }}
 
-      - name: Clone upstream & prepare
+      - name: Pull Debian Bookworm container
         run: |
-          git clone --branch dynfilefs-v4.04 https://github.com/Tomas-M/dynfilefs.git source
-          cp -r debian source/
+          docker pull --platform ${{ matrix.platform }} multiarch/debian-debootstrap:bookworm
 
-      - name: Build .deb package
-        working-directory: source
+      - name: Build inside Bookworm container
         run: |
-          dpkg-buildpackage -us -uc
+          docker run --rm --privileged \
+            --platform ${{ matrix.platform }} \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            multiarch/debian-debootstrap:bookworm \
+            bash -euxc '
+              # Install build tools
+              apt-get update
+              DEBIAN_FRONTEND=noninteractive apt-get install -y \
+                git \
+                dpkg-dev \
+                debhelper \
+                build-essential \
+                libfuse-dev
+
+              # Prepare source and debian/
+              git clone --branch dynfilefs-v4.04 https://github.com/Tomas-M/dynfilefs.git source
+              cp -r debian source/
+
+              # Build .deb
+              cd source
+              dpkg-buildpackage -us -uc
+            '
 
       - name: Upload .deb artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dynfilefs-${{ matrix.arch }}
           path: |
-            ../dynfilefs_*.deb
-            ../dynfilefs-dbgsym_*.deb
+            dynfilefs_*.deb
+            dynfilefs-dbgsym_*.deb
 
-      - name: Clean up
+      - name: Clean up workspace
         if: always()
         run: |
-          rm -rf source ../*.deb
+          rm -rf source dynfilefs_*.deb dynfilefs-dbgsym_*.deb
