@@ -39,14 +39,14 @@ jobs:
         run: |
           git clone --branch dynfilefs-v4.04 https://github.com/Tomas-M/dynfilefs.git source
           cp -r debian source/
-      
+
       - name: Build .deb package
         working-directory: source
         run: |
           dpkg-buildpackage -us -uc
 
       - name: Upload .deb artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dynfilefs-${{ matrix.arch }}
           path: |
