@@ -24,26 +24,26 @@ jobs:
 
     steps:
       - name: Checkout source
-        # Updated to v4 for the latest features and security
         uses: actions/checkout@v4
 
       - name: Set up QEMU for cross‑arch Docker
-        # Updated to v3
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: ${{ matrix.platform }}
+          platforms: linux/386 # Only need to specify the non-native platform
 
       - name: Pull Debian Bookworm container
         run: |
-          docker pull --platform ${{ matrix.platform }} multiarch/debian-debootstrap:bookworm
+          # FIXED: Switched to the official debian:bookworm image
+          docker pull --platform ${{ matrix.platform }} debian:bookworm
 
       - name: Build inside Bookworm container
         run: |
+          # FIXED: Using the official debian:bookworm image
           docker run --rm --privileged \
             --platform ${{ matrix.platform }} \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
-            multiarch/debian-debootstrap:bookworm \
+            debian:bookworm \
             bash -euxc '
               # Install build tools
               apt-get update
@@ -59,13 +59,11 @@ jobs:
               cp -r debian source/
 
               # Build .deb
-              # dpkg-buildpackage will create .deb files in the parent directory (/workspace)
               cd source
               dpkg-buildpackage -us -uc
             '
 
       - name: Upload .deb artifacts
-        # FIXED: Updated to v4 as v3 is deprecated and disabled
         uses: actions/upload-artifact@v4
         with:
           name: dynfilefs-${{ matrix.arch }}
@@ -76,5 +74,4 @@ jobs:
       - name: Clean up workspace
         if: always()
         run: |
-          # The paths match because the files are created in ${{ github.workspace }}
           rm -rf source dynfilefs_*.deb dynfilefs-dbgsym_*.deb
