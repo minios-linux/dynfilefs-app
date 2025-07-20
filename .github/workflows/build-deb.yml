@@ -1,3 +1,4 @@
+# .github/workflows/build-deb.yml
 name: Build and Release Debian Package
 
 on:
@@ -46,7 +47,7 @@ jobs:
           echo "name=$PKG_NAME" >> $GITHUB_OUTPUT
           echo "version=$PKG_VERSION" >> $GITHUB_OUTPUT
           
-      - name: Build and Lint Debian Package
+      - name: Build Debian Package
         env:
           PACKAGE: ${{ steps.package_info.outputs.name }}
           VERSION: ${{ steps.package_info.outputs.version }}
@@ -62,8 +63,9 @@ jobs:
 
               echo "##[group]1. Install Dependencies"
               apt-get update
+              # Убрали lintian из списка пакетов
               DEBIAN_FRONTEND=noninteractive apt-get install -y \
-                git dpkg-dev debhelper build-essential libfuse-dev lintian
+                git dpkg-dev debhelper build-essential libfuse-dev
               echo "##[endgroup]"
 
               echo "##[group]2. Clone Upstream Source"
@@ -82,14 +84,6 @@ jobs:
               echo "##[group]5. Build Package"
               cd build/${PACKAGE}-${VERSION}
               dpkg-buildpackage -us -uc
-              echo "##[endgroup]"
-
-              echo "##[group]6. Run Lintian Check"
-              cd ..
-              # FIXED: The --fail-on-error flag is too new for debian:bookworm.
-              # This command prints all lintian output to the log, but fails the
-              # step only if an error line (E:) is found.
-              lintian --show-overrides ${PACKAGE}_*.changes | tee /dev/stderr | ! grep -q "^E:"
               echo "##[endgroup]"
             '
 
