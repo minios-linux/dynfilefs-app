@@ -1,0 +1,37 @@
+.TH DYNFILEFS 1 "July 2025" "dynfilefs 4.04" "User Commands"
+.SH NAME
+dynfilefs \- FUSE filesystem for dynamically-enlarged file
+.SH SYNOPSIS
+.B dynfilefs
+\-f storage_file \-m mount_dir [ \-s size_MB ] [ \-p split_size_MB ] [ \-d ]
+.SH DESCRIPTION
+.B dynfilefs
+is a FUSE filesystem that provides a dynamically-enlarged virtual file. All changes to the virtual file are stored in the specified storage file(s).
+.PP
+.SH OPTIONS
+.TP
+.B \-f, --file [storage_file]
+Path to the file where changes to the virtual file will be stored. Additional storage files may be created with extensions (.0, .1, ...).
+.TP
+.B \-m, --mountdir [mount_dir]
+Directory where the filesystem will be mounted. Must be empty.
+.TP
+.B \-s, --size [size_MB]
+Sets the size of the virtual.dat file in MB. If storage file exists, specifying a larger size will enlarge the virtual file.
+.TP
+.B \-p, --split [split_size_MB]
+Maximum data size per storage file. Multiple files are created if size_MB > split_size_MB.
+.TP
+.B \-d
+Debug mode; do not fork to background.
+.SH EXAMPLES
+Mount filesystem:
+.nf
+    dynfilefs -f /tmp/changes.dat -s 1024 -m /mnt
+    mke2fs -F /mnt/virtual.dat
+    mount -o loop /mnt/virtual.dat /mnt
+.fi
+.SH AUTHOR
+Tomas Matejicek
+.SH HOMEPAGE
+https://github.com/Tomas-M/dynfilefs

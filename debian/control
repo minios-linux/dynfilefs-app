@@ -1,0 +1,13 @@
+Source: dynfilefs
+Section: utils
+Priority: optional
+Maintainer: crims0n <crims0n@minios.dev>
+Build-Depends: debhelper-compat (= 10), libfuse-dev
+Standards-Version: 4.6.2
+Homepage: https://github.com/Tomas-M/dynfilefs
+
+Package: dynfilefs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: dynfilefs - dynamic file system utility
+ This package provides dynfilefs, a dynamic file system utility written in C.
