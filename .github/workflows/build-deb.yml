@@ -51,45 +51,45 @@ jobs:
           PACKAGE: ${{ steps.package_info.outputs.name }}
           VERSION: ${{ steps.package_info.outputs.version }}
         run: |
-          # All commands run inside a single Docker container to maintain state.
-          # We use log grouping to create collapsible steps in the UI.
+          # FIXED: Pass variables to the container with the -e flag
           docker run --rm --privileged \
+            -e PACKAGE -e VERSION \
             --platform ${{ matrix.platform }} \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
             debian:bookworm \
-            bash -euc "
+            bash -euc '
               set -x
 
-              echo '##[group]1. Install Dependencies'
+              echo "##[group]1. Install Dependencies"
               apt-get update
               DEBIAN_FRONTEND=noninteractive apt-get install -y \
                 git dpkg-dev debhelper build-essential libfuse-dev lintian
-              echo '##[endgroup]'
+              echo "##[endgroup]"
 
-              echo '##[group]2. Clone Upstream Source'
+              echo "##[group]2. Clone Upstream Source"
               mkdir -p build
-              git clone --branch dynfilefs-v\${VERSION} https://github.com/Tomas-M/dynfilefs.git build/\${PACKAGE}-\${VERSION}
-              echo '##[endgroup]'
+              git clone --branch dynfilefs-v${VERSION} https://github.com/Tomas-M/dynfilefs.git build/${PACKAGE}-${VERSION}
+              echo "##[endgroup]"
 
-              echo '##[group]3. Create .orig.tar.gz'
-              tar -C build --create --gzip --file build/\${PACKAGE}_\${VERSION}.orig.tar.gz \${PACKAGE}-\${VERSION}
-              echo '##[endgroup]'
+              echo "##[group]3. Create .orig.tar.gz"
+              tar -C build --create --gzip --file build/${PACKAGE}_${VERSION}.orig.tar.gz ${PACKAGE}-${VERSION}
+              echo "##[endgroup]"
 
-              echo '##[group]4. Add debian/ Directory'
-              cp -r debian build/\${PACKAGE}-\${VERSION}/
-              echo '##[endgroup]'
+              echo "##[group]4. Add debian/ Directory"
+              cp -r debian build/${PACKAGE}-${VERSION}/
+              echo "##[endgroup]"
 
-              echo '##[group]5. Build Package'
-              cd build/\${PACKAGE}-\${VERSION}
+              echo "##[group]5. Build Package"
+              cd build/${PACKAGE}-${VERSION}
               dpkg-buildpackage -us -uc
-              echo '##[endgroup]'
+              echo "##[endgroup]"
 
-              echo '##[group]6. Run Lintian Check'
+              echo "##[group]6. Run Lintian Check"
               cd ..
-              lintian --show-overrides --fail-on-error \${PACKAGE}_*.changes
-              echo '##[endgroup]'
-            "
+              lintian --show-overrides --fail-on-error ${PACKAGE}_*.changes
+              echo "##[endgroup]"
+            '
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
