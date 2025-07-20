@@ -1,1 +1,3 @@
 dynfilefs usr/sbin/
+debian/dynfilefs.1 usr/share/man/man1/
+debian/mount.dynfilefs.1 usr/share/man/man1/

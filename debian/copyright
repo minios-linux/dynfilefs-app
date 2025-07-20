@@ -6,9 +6,10 @@ Copyright: 2015-2025 Tomas Matejicek <https://github.com/Tomas-M>
 License: GPL-2+
 License-file: /usr/share/common-licenses/GPL-2
 
+License: GPL-2+
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
+ the Free Software Foundation; either version 2 of the License, or
  (at your option) any later version.
  .
  This program is distributed in the hope that it will be useful,
@@ -18,13 +19,14 @@ License-file: /usr/share/common-licenses/GPL-2
  .
  You should have received a copy of the GNU General Public License along
  with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA, or visit
+ 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA, or visit
  http://www.gnu.org/copyleft/gpl.html
  .
  On Debian GNU/Linux systems, the complete text of the GNU General Public
- License in version 2 can be found in the `/usr/share/common-licenses/GPL-2` file.
+ License in version 2 can be found in the '/usr/share/common-licenses/GPL-2' file.
 
 Files: debian/*
 Copyright: 2025 crims0n <crims0n@minios.dev>
+
 License: GPL-2+
 License-file: /usr/share/common-licenses/GPL-2

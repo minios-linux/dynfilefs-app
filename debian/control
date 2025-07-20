@@ -9,5 +9,6 @@ Homepage: https://github.com/Tomas-M/dynfilefs
 Package: dynfilefs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: dynfilefs - dynamic file system utility
- This package provides dynfilefs, a dynamic file system utility written in C.
+Description: FUSE-based dynamic file system utility
+ DynFileFS is a utility for creating a dynamic virtual file system using FUSE.
+ It stores changes in specified files and supports flexible file management.
