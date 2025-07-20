@@ -26,19 +26,13 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Set up QEMU for cross‑arch Docker
+      - name: Set up QEMU for cross-arch Docker
         uses: docker/setup-qemu-action@v3
         with:
-          platforms: linux/386 # Only need to specify the non-native platform
-
-      - name: Pull Debian Bookworm container
-        run: |
-          # FIXED: Switched to the official debian:bookworm image
-          docker pull --platform ${{ matrix.platform }} debian:bookworm
+          platforms: linux/386 # Only specify non-native platforms
 
       - name: Build inside Bookworm container
         run: |
-          # FIXED: Using the official debian:bookworm image
           docker run --rm --privileged \
             --platform ${{ matrix.platform }} \
             -v ${{ github.workspace }}:/workspace \
@@ -60,7 +54,8 @@ jobs:
 
               # Build .deb
               cd source
-              dpkg-buildpackage -us -uc
+              # FIXED: Use -b for a binary-only build to avoid needing a .orig.tar.gz
+              dpkg-buildpackage -b -us -uc
             '
 
       - name: Upload .deb artifacts
@@ -73,5 +68,6 @@ jobs:
 
       - name: Clean up workspace
         if: always()
+        # FIXED: Use sudo to remove files created by root inside the Docker container
         run: |
-          rm -rf source dynfilefs_*.deb dynfilefs-dbgsym_*.deb
+          sudo rm -rf source dynfilefs_*.deb dynfilefs-dbgsym_*.deb
