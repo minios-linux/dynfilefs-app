@@ -1,10 +1,14 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Source: https://github.com/Tomas-M/dynfilefs
+License: GPL-2+
 
 Files: *
 Copyright: 2015-2025 Tomas Matejicek <https://github.com/Tomas-M>
 License: GPL-2+
-License-file: /usr/share/common-licenses/GPL-2
+
+Files: debian/*
+Copyright: 2025 crims0n <crims0n@minios.dev>
+License: GPL-2+
 
 License: GPL-2+
  This program is free software; you can redistribute it and/or modify
@@ -24,9 +28,3 @@ License: GPL-2+
  .
  On Debian GNU/Linux systems, the complete text of the GNU General Public
  License in version 2 can be found in the '/usr/share/common-licenses/GPL-2' file.
-
-Files: debian/*
-Copyright: 2025 crims0n <crims0n@minios.dev>
-
-License: GPL-2+
-License-file: /usr/share/common-licenses/GPL-2
