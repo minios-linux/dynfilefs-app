@@ -1,0 +1,59 @@
+# .github/workflows/build-deb.yml
+name: Build dynfilefs Debian Package
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [amd64, i386]
+
+    # Use Debian Bookworm bootstrap images for each arch, with QEMU support
+    container:
+      image: multiarch/debian-debootstrap:bookworm-${{ matrix.arch }}
+      options: --privileged
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install build tools & QEMU
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git \
+            dpkg-dev \
+            debhelper \
+            build-essential \
+            libfuse-dev \
+            qemu-user-static
+
+      - name: Clone upstream & prepare
+        run: |
+          git clone --branch dynfilefs-v4.04 https://github.com/Tomas-M/dynfilefs.git source
+          cp -r debian source/
+      
+      - name: Build .deb package
+        working-directory: source
+        run: |
+          dpkg-buildpackage -us -uc
+
+      - name: Upload .deb artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dynfilefs-${{ matrix.arch }}
+          path: |
+            ../dynfilefs_*.deb
+            ../dynfilefs-dbgsym_*.deb
+
+      - name: Clean up
+        if: always()
+        run: |
+          rm -rf source ../*.deb
